@@ -9,7 +9,7 @@ function openAlacrittyTmux(targetDir) {
 		try {
 			const child = spawn(
 				'alacritty',
-				['--working-directory', targetDir, '--command', 'tmux'],
+				['--working-directory', targetDir],
 				{ detached: true, stdio: 'ignore' }
 			);
 			child.on('error', reject);
