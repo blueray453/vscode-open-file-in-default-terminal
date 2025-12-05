@@ -4,6 +4,7 @@
     "description": "Context-menu command to open a file's path in the system default terminal (falls back to integrated terminal).",
     "license": "ISC",
     "author": "Ahmmad Ismail <ahmmad.ismail@protonmail.com> (https://github.com/blueray453)",
+    "publisher": "blueray453",
     "type": "module",
     "main": "./extension.js",
     "scripts": {
@@ -12,7 +13,7 @@
     },
     "devDependencies": {},
     "engines": {
-        "vscode": "^1.106.2"
+        "vscode": "^1.105.0"
     },
     "displayName": "Open File Path in Default Terminal",
     "categories": [
