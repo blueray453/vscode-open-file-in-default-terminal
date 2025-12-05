@@ -28,6 +28,13 @@
                 "category": "Explorer"
             }
         ],
+        "keybindings": [
+            {
+                "command": "openFileInDefaultTerminal.open",
+                "key": "ctrl+alt+t",
+                "when": "editorTextFocus || explorerViewletVisible"
+            }
+        ],
         "menus": {
             "explorer/context": [
                 {
