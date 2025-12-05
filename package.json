@@ -1,1 +1,61 @@
-{"name":"open-file-in-default-terminal","version":"0.0.1","description":"Context-menu command to open a file's path in the system default terminal (falls back to integrated terminal).","license":"ISC","author":"Ahmmad Ismail <ahmmad.ismail@protonmail.com> (https://github.com/blueray453)","type":"module","main":"./extension.js","scripts":{"vscode:prepublish":"npm run build","build":"echo 'no build step'"},"devDependencies":{},"engines":{"vscode":"^1.106.2"},"displayName":"Open File Path in Default Terminal","categories":["Other"],"activationEvents":[],"contributes":{"commands":[{"command":"openFileInDefaultTerminal.open","title":"Open File Path in Default Terminal","category":"Explorer"}],"menus":{"explorer/context":[{"command":"openFileInDefaultTerminal.open","when":"explorerResourceIsFolder == false","group":"navigation@3"}]}}}
+{
+    "name": "open-file-in-default-terminal",
+    "version": "0.0.1",
+    "description": "Context-menu command to open a file's path in the system default terminal (falls back to integrated terminal).",
+    "license": "ISC",
+    "author": "Ahmmad Ismail <ahmmad.ismail@protonmail.com> (https://github.com/blueray453)",
+    "type": "module",
+    "main": "./extension.js",
+    "scripts": {
+        "vscode:prepublish": "npm run build",
+        "build": "echo 'no build step'"
+    },
+    "devDependencies": {},
+    "engines": {
+        "vscode": "^1.106.2"
+    },
+    "displayName": "Open File Path in Default Terminal",
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [],
+    "contributes": {
+        "commands": [
+            {
+                "command": "openFileInDefaultTerminal.open",
+                "title": "Open File Path in Default Terminal",
+                "category": "Explorer"
+            }
+        ],
+        "menus": {
+            "explorer/context": [
+                {
+                    "command": "openFileInDefaultTerminal.open",
+                    "when": "explorerResourceIsFolder == false",
+                    "group": "navigation@3"
+                }
+            ],
+            "editor/context": [
+                {
+                    "command": "openFileInDefaultTerminal.open",
+                    "group": "navigation"
+                }
+            ],
+            "editor/title/context": [
+                {
+                    "command": "openFileInDefaultTerminal.open",
+                    "group": "navigation"
+                }
+            ]
+        }
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/blueray453/vscode-open-file-in-default-terminal.git"
+    },
+    "keywords": [],
+    "bugs": {
+        "url": "https://github.com/blueray453/vscode-open-file-in-default-terminal/issues"
+    },
+    "homepage": "https://github.com/blueray453/vscode-open-file-in-default-terminal#readme"
+}

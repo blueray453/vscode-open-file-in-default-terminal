@@ -1,82 +1,18 @@
 // src/extension.js (ES module)
 import * as vscode from 'vscode';
 import { spawn } from 'child_process';
-import { platform } from 'os';
 import { dirname } from 'path';
 
-/**
- * Try to open the system default terminal at `targetDir`.
- * If platform-specific heuristics fail, fall back to VS Code integrated terminal.
- */
-async function openSystemTerminal(targetDir) {
-	const plt = platform();
 
-	// macOS: `open -a Terminal <dir>` (works for Terminal.app). Try iTerm2 as fallback.
-	if (plt === 'darwin') {
-		// prefer the user's default terminal: try Terminal, then iTerm
-		try {
-			await spawnPromise('open', ['-a', 'Terminal', targetDir]);
-			return true;
-		} catch (e) {
-			try {
-				await spawnPromise('open', ['-a', 'iTerm', targetDir]);
-				return true;
-			} catch (e2) {
-				return false;
-			}
-		}
-	}
-
-	// Windows: prefer Windows Terminal (wt), then cmd.exe
-	if (plt === 'win32') {
-		try {
-			// 'wt' supports -d <dir>
-			await spawnPromise('wt', ['-d', targetDir]);
-			return true;
-		} catch (e) {
-			// fallback to cmd.exe starting in the dir
-			try {
-				// start cmd.exe and keep it open
-				await spawnPromise('cmd', ['/c', 'start', 'cmd.exe', '/K', `cd /d "${targetDir}"`]);
-				return true;
-			} catch (e2) {
-				return false;
-			}
-		}
-	}
-
-	// Linux/other: try common terminal emulators. There's no single "default" API,
-	// so we probe a list. If none available, return false.
-	if (plt === 'linux') {
-		const candidates = [
-			['gnome-terminal', ['--', 'bash', '-lc', `cd "${targetDir}"; exec bash`]],
-			['konsole', ['--workdir', targetDir]],
-			['xfce4-terminal', ['--working-directory', targetDir]],
-			['x-terminal-emulator', ['-e', `bash -c 'cd "${targetDir}"; exec bash'`]],
-			['xterm', ['-e', `bash -lc 'cd "${targetDir}"; exec bash'`]]
-		];
-
-		for (const [cmd, args] of candidates) {
-			try {
-				await spawnPromise(cmd, args);
-				return true;
-			} catch (e) {
-				// try next
-			}
-		}
-		return false;
-	}
-
-	return false;
-}
-
-function spawnPromise(cmd, args) {
+function openAlacrittyTmux(targetDir) {
 	return new Promise((resolve, reject) => {
 		try {
-			const child = spawn(cmd, args, { detached: true, stdio: 'ignore' });
-			// detach so it doesn't block the extension host
+			const child = spawn(
+				'alacritty',
+				['--working-directory', targetDir, '--command', 'tmux'],
+				{ detached: true, stdio: 'ignore' }
+			);
 			child.on('error', reject);
-			// give it a tiny timeout to surface immediate ENOENT errors
 			setTimeout(() => {
 				try { child.unref(); } catch (e) { }
 				resolve(true);
@@ -87,49 +23,33 @@ function spawnPromise(cmd, args) {
 	});
 }
 
-/**
- * If system terminal can't be opened, open VS Code integrated terminal at the path.
- */
-function openIntegratedTerminal(targetDir, label = 'Open File Path') {
-	const terminal = vscode.window.createTerminal({ name: label, cwd: targetDir });
-	terminal.show(true);
-}
-
 export async function activate(context) {
 	const disposable = vscode.commands.registerCommand('openFileInDefaultTerminal.open', async (resource) => {
-		// resource is a vscode.Uri when triggered from explorer context menu
 		let fileUri = resource;
-
-		// If the command was invoked without a resource, try active editor
 		if (!fileUri) {
 			const editor = vscode.window.activeTextEditor;
 			if (editor) fileUri = editor.document.uri;
 		}
 
 		if (!fileUri) {
-			vscode.window.showErrorMessage('No file selected to open in terminal.');
+			vscode.window.showErrorMessage('No file selected.');
 			return;
 		}
 
 		const filePath = fileUri.fsPath;
 		const targetDir = dirname(filePath);
 
-		// Try system terminal first
-		const ok = await openSystemTerminal(targetDir);
-		if (!ok) {
-			// fallback to integrated terminal
-			openIntegratedTerminal(targetDir, `Terminal — ${targetDir}`);
-			vscode.window.showInformationMessage('Opened VS Code integrated terminal (system terminal not found).');
+		try {
+			await openAlacrittyTmux(targetDir);
+		} catch (e) {
+			vscode.window.showErrorMessage('Failed to open Alacritty (is it installed?).');
 		}
 	});
 
 	context.subscriptions.push(disposable);
 }
 
-export function deactivate() {
-	// nothing to clean up
-}
-
+export function deactivate() { }
 // Sample input / output (how to use)
 // -------------------------------
 // 1) Right-click any file in the Explorer -> you should see:
